@@ -6,7 +6,7 @@
 /*   By: nlocusso <nlocusso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/01 17:30:38 by nlocusso          #+#    #+#             */
-/*   Updated: 2022/10/01 23:32:47 by nlocusso         ###   ########.fr       */
+/*   Updated: 2022/10/02 21:28:00 by nlocusso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,42 @@ void	fmt_check(const char *fmt, va_list args)
 		write(1, "Erreur", 6);
 }
 
+int		malloc_fmt(const char *fmt, int i)
+{
+	int	len_fmt;
+
+	len_fmt = 0;
+	if (fmt[i] == '%' && fmt[i + 1] == '%')
+		return (2);
+	if (fmt[i] >= 9 && fmt[i] <= 13)
+		return (1);
+	while (fmt[i] != '\0' && fmt[i + 1] != '%')
+	{
+		len_fmt++;
+		if (fmt[i + 1] >= 9 && fmt[i + 1] <= 13)
+			return (len_fmt);
+		i++;
+	}
+	return (len_fmt);
+}
+
+char	*tab_for_fmt_bis(const char *fmt, int i, char *tab)
+{
+	int	cnt;
+	int	l_malloc;
+
+	l_malloc = (malloc_fmt(fmt, i));
+	tab = malloc(l_malloc * sizeof(char *));
+	cnt = 0;
+	while (cnt != l_malloc)
+	{
+		tab[cnt] = fmt[i];
+		cnt++;
+		i++;
+	}
+	return (tab);
+}
+
 char	**tab_for_fmt(const char *fmt, int cnt_fmt)
 {
 	int		i;
@@ -95,20 +131,9 @@ char	**tab_for_fmt(const char *fmt, int cnt_fmt)
 	tab = malloc(cnt_fmt * sizeof(char *));
 	while (fmt[i] != '\0')
 	{
-		if (fmt[i] >= 9 && fmt[i] <= 13)
-		{
-			tab[cnt] = malloc(sizeof(char *));
-			tab[cnt][0] = fmt[i];
-		}
-		else
-		{
-			tab[cnt] = malloc(2 * sizeof(char *));
-			tab[cnt][0] = fmt[i];
-			i++;
-			tab[cnt][1] = fmt[i];
-		}
+		tab[cnt] = tab_for_fmt_bis(fmt, i, tab[cnt]);
 		cnt++;
-		i++;
+		i += (malloc_fmt(fmt, i));
 	}
 	return (tab);
 }
